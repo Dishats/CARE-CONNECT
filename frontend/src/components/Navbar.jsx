@@ -44,8 +44,8 @@ const Navbar = () => {
                    <img className='w-2.5' src={assets.dropdown_icon} alt="" />
                    <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block '>
                     <div className='min-w-48 bg-stone-100  rounded flex flex-col gap-4 p-4'>
-                        <p  onClick={()=>navigate('my-profile')} className='hover:text-black cursor-pointer '>My Profile</p>
-                    <p onClick={()=>navigate('my-appointments')} className='hover:text-black cursor-pointer '>My Appointments</p>
+                        <p  onClick={()=>navigate('myprofile')} className='hover:text-black cursor-pointer '>My Profile</p>
+                    <p onClick={()=>navigate('myappointments')} className='hover:text-black cursor-pointer '>My Appointments</p>
                         <p onClick={()=>setToken(false)} className='hover:text-black cursor-pointer '>Logout</p>
                     </div>
                    </div>
@@ -53,6 +53,26 @@ const Navbar = () => {
                 </div>
                 :<button onClick={()=>navigate('/login')} className='bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block'>Create Account</button>
             }
+            <img onClick={()=>setShowMenu(true)} className='w-6 md:hidden' src={assets.menu_icon} alt="" />
+            {/* -------mobile menu-------- */}
+<div className={` ${showMenu ? 'fixed w-full h-full' : 'h-0 w-0'} md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all duration-300`}>
+  <div className="flex justify-between items-center p-4 border-b">
+    <img src={assets.logo} alt="Logo" className="h-10" />
+    <img
+      onClick={() => setShowMenu(false)}
+      src={assets.cross_icon}
+      alt="Close"
+      className="h-6 w-6 cursor-pointer"
+    />
+  </div>
+  <ul className="flex flex-col items-center mt-6 space-y-4">
+    <NavLink  onClick={()=>setShowMenu(false)} to="/" className="text-lg font-medium hover:text-blue-500"><p>Home</p></NavLink>
+    <NavLink  onClick={()=>setShowMenu(false)} to="/doctors" className="text-lg font-medium hover:text-blue-500"><p>All Doctors</p></NavLink>
+    <NavLink  onClick={()=>setShowMenu(false)} to="/about" className="text-lg font-medium hover:text-blue-500"><p>About</p></NavLink>
+    <NavLink  onClick={()=>setShowMenu(false)} to="/contact" className="text-lg font-medium hover:text-blue-500"><p>Contact</p></NavLink>
+  </ul>
+</div>
+ 
             
         </div>
 
