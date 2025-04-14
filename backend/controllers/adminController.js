@@ -59,7 +59,7 @@ const addDoctor = async (req, res) => {
     }
 }
 
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
 
 // API for the admin login 
 const loginAdmin = async(req,res)=>{
