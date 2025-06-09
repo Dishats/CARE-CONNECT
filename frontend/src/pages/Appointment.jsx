@@ -111,9 +111,11 @@ const bookAppointment = async () => {
   }, [doctors, docId])
 
 
-  useEffect(() => {
-    getAvailableSlots()
-  }, [docInfo])
+ useEffect(() => {
+  if (docInfo && docInfo.slots_booked) {
+    getAvailableSlots();
+  }
+}, [docInfo]);
 
   useEffect(() => {
     console.log(docSlots);

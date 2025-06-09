@@ -7,42 +7,87 @@ import { useEffect } from "react";
 
 
 const MyAppointments = () => {
-  const { backendUrl , token } = useContext(AppContext);
+  const { backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] = useState([])
   const getUserAppointments = async () => {
     try {
-      const {data}= await axios.get(backendUrl + '/api/user/appointments', {
-  headers: { token }
-});
+      const { data } = await axios.get(backendUrl + '/api/user/appointments', {
+        headers: { token }
+      });
 
       if (data.success) {
         setAppointments(data.appointments.reverse())
         console.log(data.appointments);
+
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message)
+    }
+  }
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+
+      const { data } = await await axios.post(backendUrl + '/api/user/cancel-appointment', {
+        appointmentId
+      }, {
+        headers: { token }
+      });
+
+      if (data.success) {
+        toast.success(data.message)
+        getUserAppointments()
+
+      } else {
+        toast.error(data.message)
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message)
+    }
+  }
+
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'appointment payment',
+      description :'Appointment Payment',
+      order_id : order.id,
+      receipt : order.receipt,
+      handler : async (response) => {
+        console.log(response);
         
       }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message)
+
     }
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+
   }
-   
-  const cancelAppointment = async(appointmentId) =>{
+
+
+  const appointmentRazorpay = async (appointmentId) => {
     try {
-      console.log(appointmentId);
-      
+      const { data } = await axios.post(backendUrl + '/api/user/payment-razorpay', { appointmentId }, { headers: { token } })
+      if (data.success) {
+        initPay(data.order)
+
+      }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message)
+
     }
   }
 
-
-
-  useEffect(()=>{
-      if (token) {
-        getUserAppointments()
-      }
-  },[token])
+  useEffect(() => {
+    if (token) {
+      getUserAppointments()
+      getDoctorsData()
+    }
+  }, [token])
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6">
       <p className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 text-center sm:text-left">
@@ -76,12 +121,13 @@ const MyAppointments = () => {
 
             {/* Buttons */}
             <div className="flex flex-col space-y-2 mt-4 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-3">
-              <button className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
+              {!item.cancelled && <button onClick={() => appointmentRazorpay(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
                 Pay Online
-              </button>
-              <button onClick={()=>cancelAppointment(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
+              </button>}
+              {!item.cancelled && <button onClick={() => cancelAppointment(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
                 Cancel Appointment
-              </button>
+              </button>}
+              {item.cancelled && <button className="sm:min-w-48 py-2 border border-red-600 rounded text-red-600"> Appointment cancelled</button>}
             </div>
           </div>
         ))}
