@@ -4,11 +4,16 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] = useState([])
+  const navigate = useNavigate()
+
+
+
   const getUserAppointments = async () => {
     try {
       const { data } = await axios.get(backendUrl + '/api/user/appointments', {
@@ -61,6 +66,19 @@ const MyAppointments = () => {
       handler : async (response) => {
         console.log(response);
         
+
+        try {
+          const {data} = await axios.post(backendUrl+'/api/user/verifyRazorpay',response,{headers:{token}})
+          if (data.success) {
+            getUserAppointments()
+            navigate('/myappointments')
+          }
+        } catch (error) {
+          console.log(error)
+          toast.error(error.message)
+          
+        }
+
       }
 
     }
@@ -121,7 +139,8 @@ const MyAppointments = () => {
 
             {/* Buttons */}
             <div className="flex flex-col space-y-2 mt-4 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-3">
-              {!item.cancelled && <button onClick={() => appointmentRazorpay(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
+              {!item.cancelled && item.payment && <button className="sm:min-w-48 py-2 rounded text-stone-600 bg-indigo-50">payment done</button>}
+              {!item.cancelled && !item.payment && <button onClick={() => appointmentRazorpay(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
                 Pay Online
               </button>}
               {!item.cancelled && <button onClick={() => cancelAppointment(item._id)} className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-300 hover:bg-blue-600 hover:text-white">
